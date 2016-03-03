@@ -2,6 +2,8 @@
 import argparse
 import copy
 import requests
+import ConfigParser
+from twilio.rest import TwilioRestClient
 
 from urlparse import parse_qs
 from datetime import datetime
@@ -94,7 +96,7 @@ def getSiteList(html):
 
 def sendRequest(payload):
     with requests.Session() as s:
-        
+
         s.get(BASE_URL + UNIF_RESULTS) # Sets session cookie
         s.post(BASE_URL + UNIF_SEARCH, LOCATION_PAYLOAD) # Sets location to yosemite
         s.post(BASE_URL + UNIF_SEARCH, CAMPING_PAYLOAD) # Sets search type to camping
@@ -111,8 +113,17 @@ if __name__ == "__main__":
     parser.add_argument("--start_date", type=str, help="Start date [YYYY-MM-DD]")
     parser.add_argument("--end_date", type=str, help="End date [YYYY-MM-DD]")
 
+    # Set up Twilio
+    config_parser = ConfigParser.ConfigParser()
+    config_parser.readfp(open(r'config'))
+    twilio_sid = config_parser.get('twilio', 'ACCOUNT_SID')
+    twilio_token = config_parser.get('twilio', 'AUTH_TOKEN')
+
+    twilio_client = TwilioRestClient(twilio_sid, twilio_token)
+
     args = parser.parse_args()
     sites = findCampSites(vars(args))
     if sites:
         for site in sites:
             print site
+            twilio_client.messages.create(to="+16508623731", body=site)

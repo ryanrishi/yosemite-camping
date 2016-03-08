@@ -118,6 +118,8 @@ if __name__ == "__main__":
     config_parser.readfp(open(r'config'))
     twilio_sid = config_parser.get('twilio', 'ACCOUNT_SID')
     twilio_token = config_parser.get('twilio', 'AUTH_TOKEN')
+    twilio_from = config_parser.get('twilio', 'from_')
+    twilio_to = config_parser.get('twilio', 'to')
 
     twilio_client = TwilioRestClient(twilio_sid, twilio_token)
 
@@ -126,4 +128,4 @@ if __name__ == "__main__":
     if sites:
         for site in sites:
             print site
-            twilio_client.messages.create(to="+16508623731", body=site)
+            twilio_client.messages.create(to=twilio_to, from_=twilio_from, body=site)

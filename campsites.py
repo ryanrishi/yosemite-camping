@@ -64,7 +64,7 @@ def findCampSites(args):
     payload = generatePayload(args['start_date'], args['end_date'])
 
     content_raw = sendRequest(payload)
-    html = BeautifulSoup(content_raw)
+    html = BeautifulSoup(content_raw, 'lxml')
     sites = getSiteList(html)
     return sites
 
@@ -128,4 +128,6 @@ if __name__ == "__main__":
     if sites:
         for site in sites:
             print site
-            twilio_client.messages.create(to=twilio_to, from_=twilio_from, body=site)
+            _args = vars(args)
+            message = 'start %s end %s book %s' % (_args['start_date'], _args['end_date'], site)
+            twilio_client.messages.create(to=twilio_to, from_=twilio_from, body=message)
